@@ -13,11 +13,18 @@ Future main() async {
   ''');
   await db.insert('Product', <String, dynamic>{'title': 'Product 1'});
   await db.insert('Product', <String, dynamic>{'title': 'Product 2'});
+  await db.rawInsert('INSERT INTO Product(title) VALUES(?)', ['Product 3']);
 
   var result = await db.query('Product');
-  print(result);
-  // prints [{id: 1, title: Product 1}, {id: 2, title: Product 2}]
-  print(await db.getVersion());
-  // prints 10
+  print(result); // [{columns: [id, title], rows: [[1, Product 1], [2, Product 2], [3, Product 3]]}]
+
+  print(await db.getVersion()); // 10
+
+  result = await db.rawQuery('SELECT * FROM Product', []);
+  print(result); // [{columns: [id, title], rows: [[1, Product 1], [2, Product 2], [3, Product 3]]}]
+
+  result = await db.rawQuery('SELECT * FROM Product WHERE title = ?', ['Product 1']);
+  print(result); // [{columns: [id, title], rows: [[1, Product 1]]}]
+
   await db.close();
 }
